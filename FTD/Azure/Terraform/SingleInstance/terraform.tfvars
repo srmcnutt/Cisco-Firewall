@@ -22,6 +22,6 @@ VMSize = "Standard_D3_v2"
 RGName = "Cisco-FTDv-GLB"
 
 // Instance Name and properties of FTDv
-instancename = "ftdv"
+instancename = "az-ftdv02"
 
 password = "Cisco@123"

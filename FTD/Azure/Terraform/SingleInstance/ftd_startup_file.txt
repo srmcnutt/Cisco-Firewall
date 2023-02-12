@@ -1,7 +1,7 @@
 #Sensor
 {
   "AdminPassword": "Cisco@123",
-  "Hostname":       "FTD-02",
+  "Hostname":       "az-ftd02",
   "ManageLocally":  "No",
   "FmcIp":          "65.100.156.29",
   "FmcRegKey":      "Cisco123",
