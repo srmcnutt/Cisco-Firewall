@@ -60,65 +60,65 @@ resource "azurerm_subnet" "ftdv-diagnostic" {
   address_prefixes       = [join("", tolist([var.IPAddressPrefix, ".1.0/24"]))]
 }
 
-resource "azurerm_subnet" "ftdv-outside" {
-  name                 = "${var.prefix}-outside"
+resource "azurerm_subnet" "ftdv-data" {
+  name                 = "${var.prefix}-data"
   resource_group_name  = azurerm_resource_group.ftdv.name
   virtual_network_name = azurerm_virtual_network.ftdv.name
   address_prefixes       = [join("", tolist([var.IPAddressPrefix, ".2.0/24"]))]
 }
 
-resource "azurerm_subnet" "ftdv-inside" {
-  name                 = "${var.prefix}-inside"
-  resource_group_name  = azurerm_resource_group.ftdv.name
-  virtual_network_name = azurerm_virtual_network.ftdv.name
-  address_prefixes       = [join("", tolist([var.IPAddressPrefix, ".3.0/24"]))]
-}
+# resource "azurerm_subnet" "ftdv-inside" {
+#   name                 = "${var.prefix}-inside"
+#   resource_group_name  = azurerm_resource_group.ftdv.name
+#   virtual_network_name = azurerm_virtual_network.ftdv.name
+#   address_prefixes       = [join("", tolist([var.IPAddressPrefix, ".3.0/24"]))]
+# }
 
 
 ################################################################################################################################
 # Route Table Creation and Route Table Association
 ################################################################################################################################
 
-resource "azurerm_route_table" "FTD_NIC0" {
-  name                = "${var.prefix}-RT-Subnet0"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.ftdv.name
+# resource "azurerm_route_table" "FTD_NIC0" {
+#   name                = "${var.prefix}-RT-Subnet0"
+#   location            = var.location
+#   resource_group_name = azurerm_resource_group.ftdv.name# 
 
-}
-resource "azurerm_route_table" "FTD_NIC1" {
-  name                = "${var.prefix}-RT-Subnet1"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.ftdv.name
+# }
+# resource "azurerm_route_table" "FTD_NIC1" {
+#   name                = "${var.prefix}-RT-Subnet1"
+#   location            = var.location
+#   resource_group_name = azurerm_resource_group.ftdv.name# 
 
-}
-resource "azurerm_route_table" "FTD_NIC2" {
-  name                = "${var.prefix}-RT-Subnet2"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.ftdv.name
-}
+# }
+# resource "azurerm_route_table" "FTD_NIC2" {
+#   name                = "${var.prefix}-RT-Subnet2"
+#   location            = var.location
+#   resource_group_name = azurerm_resource_group.ftdv.name
+# }# 
 
-resource "azurerm_route_table" "FTD_NIC3" {
-  name                = "${var.prefix}-RT-Subnet3"
-  location            = var.location
-  resource_group_name = azurerm_resource_group.ftdv.name
-}
+# resource "azurerm_route_table" "FTD_NIC3" {
+#   name                = "${var.prefix}-RT-Subnet3"
+#   location            = var.location
+#   resource_group_name = azurerm_resource_group.ftdv.name
+# }# 
 
-resource "azurerm_subnet_route_table_association" "example1" {
-  subnet_id                 = azurerm_subnet.ftdv-management.id
-  route_table_id            = azurerm_route_table.FTD_NIC0.id
-}
-resource "azurerm_subnet_route_table_association" "example2" {
-  subnet_id                 = azurerm_subnet.ftdv-diagnostic.id
-  route_table_id            = azurerm_route_table.FTD_NIC1.id
-}
-resource "azurerm_subnet_route_table_association" "example3" {
-  subnet_id                 = azurerm_subnet.ftdv-outside.id
-  route_table_id            = azurerm_route_table.FTD_NIC2.id
-}
-resource "azurerm_subnet_route_table_association" "example4" {
-  subnet_id                 = azurerm_subnet.ftdv-inside.id
-  route_table_id            = azurerm_route_table.FTD_NIC3.id
-}
+# resource "azurerm_subnet_route_table_association" "example1" {
+#   subnet_id                 = azurerm_subnet.ftdv-management.id
+#   route_table_id            = azurerm_route_table.FTD_NIC0.id
+# }
+# resource "azurerm_subnet_route_table_association" "example2" {
+#   subnet_id                 = azurerm_subnet.ftdv-diagnostic.id
+#   route_table_id            = azurerm_route_table.FTD_NIC1.id
+# }
+# resource "azurerm_subnet_route_table_association" "example3" {
+#   subnet_id                 = azurerm_subnet.ftdv-outside.id
+#   route_table_id            = azurerm_route_table.FTD_NIC2.id
+# }
+# resource "azurerm_subnet_route_table_association" "example4" {
+#   subnet_id                 = azurerm_subnet.ftdv-inside.id
+#   route_table_id            = azurerm_route_table.FTD_NIC3.id
+# }
 
 
 ################################################################################################################################
@@ -182,59 +182,58 @@ resource "azurerm_network_interface" "ftdv-interface-diagnostic" {
     private_ip_address_allocation = "Dynamic"
   }
 }
-resource "azurerm_network_interface" "ftdv-interface-outside" {
+resource "azurerm_network_interface" "ftdv-interface-data" {
   name                      = "${var.prefix}-Nic2"
   location                  = var.location
   resource_group_name       = azurerm_resource_group.ftdv.name
-  depends_on                = [azurerm_network_interface.ftdv-interface-diagnostic]
+  depends_on                = [azurerm_network_interface.ftdv-interface-data]
   ip_configuration {
     name                          = "Nic2"
-    subnet_id                     = azurerm_subnet.ftdv-outside.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.ftdv-outside-interface.id
-  }
-}
-resource "azurerm_network_interface" "ftdv-interface-inside" {
-  name                      = "${var.prefix}-Nic3"
-  location                  = var.location
-  resource_group_name       = azurerm_resource_group.ftdv.name
-  depends_on                = [azurerm_network_interface.ftdv-interface-outside]
-  ip_configuration {
-    name                          = "Nic3"
-    subnet_id                     = azurerm_subnet.ftdv-inside.id
+    subnet_id                     = azurerm_subnet.ftdv-data.id
     private_ip_address_allocation = "Dynamic"
   }
 }
-
+# resource "azurerm_network_interface" "ftdv-interface-inside" {
+#   name                      = "${var.prefix}-Nic3"
+#   location                  = var.location
+#   resource_group_name       = azurerm_resource_group.ftdv.name
+#   depends_on                = [azurerm_network_interface.ftdv-interface-outside]
+#   ip_configuration {
+#     name                          = "Nic3"
+#     subnet_id                     = azurerm_subnet.ftdv-inside.id
+#     private_ip_address_allocation = "Dynamic"
+#   }
+# }
+# 
 resource "azurerm_public_ip" "ftdv-mgmt-interface" {
     name                         = "management-public-ip"
     location                     = var.location
     resource_group_name          = azurerm_resource_group.ftdv.name
     allocation_method            = "Dynamic"
 }
-resource "azurerm_public_ip" "ftdv-outside-interface" {
-    name                         = "outside-public-ip"
-    location                     = var.location
-    resource_group_name          = azurerm_resource_group.ftdv.name
-    allocation_method            = "Dynamic"
-}
-
-resource "azurerm_network_interface_security_group_association" "FTDv_NIC0_NSG" {
-  network_interface_id      = azurerm_network_interface.ftdv-interface-management.id
-  network_security_group_id = azurerm_network_security_group.allow-all.id
-}
-resource "azurerm_network_interface_security_group_association" "FTDv_NIC1_NSG" {
-  network_interface_id      = azurerm_network_interface.ftdv-interface-diagnostic.id
-  network_security_group_id = azurerm_network_security_group.allow-all.id
-}
-resource "azurerm_network_interface_security_group_association" "FTDv_NIC2_NSG" {
-  network_interface_id      = azurerm_network_interface.ftdv-interface-outside.id
-  network_security_group_id = azurerm_network_security_group.allow-all.id
-}
-resource "azurerm_network_interface_security_group_association" "FTDv_NIC3_NSG" {
-  network_interface_id      = azurerm_network_interface.ftdv-interface-inside.id
-  network_security_group_id = azurerm_network_security_group.allow-all.id
-}
+# resource "azurerm_public_ip" "ftdv-outside-interface" {
+#     name                         = "outside-public-ip"
+#     location                     = var.location
+#     resource_group_name          = azurerm_resource_group.ftdv.name
+#     allocation_method            = "Dynamic"
+# }
+# 
+# resource "azurerm_network_interface_security_group_association" "FTDv_NIC0_NSG" {
+#   network_interface_id      = azurerm_network_interface.ftdv-interface-management.id
+#   network_security_group_id = azurerm_network_security_group.allow-all.id
+# }
+# resource "azurerm_network_interface_security_group_association" "FTDv_NIC1_NSG" {
+#   network_interface_id      = azurerm_network_interface.ftdv-interface-diagnostic.id
+#   network_security_group_id = azurerm_network_security_group.allow-all.id
+# }
+# resource "azurerm_network_interface_security_group_association" "FTDv_NIC2_NSG" {
+#   network_interface_id      = azurerm_network_interface.ftdv-interface-outside.id
+#   network_security_group_id = azurerm_network_security_group.allow-all.id
+# }
+# resource "azurerm_network_interface_security_group_association" "FTDv_NIC3_NSG" {
+#   network_interface_id      = azurerm_network_interface.ftdv-interface-inside.id
+#   network_security_group_id = azurerm_network_security_group.allow-all.id
+# }
 ################################################################################################################################
 # FTDv Instance Creation
 ################################################################################################################################
@@ -247,15 +246,13 @@ resource "azurerm_virtual_machine" "ftdv-instance" {
   depends_on = [
     azurerm_network_interface.ftdv-interface-management,
     azurerm_network_interface.ftdv-interface-diagnostic,
-    azurerm_network_interface.ftdv-interface-outside,
-    azurerm_network_interface.ftdv-interface-inside
+    azurerm_network_interface.ftdv-interface-data,
   ]
   
   primary_network_interface_id = azurerm_network_interface.ftdv-interface-management.id
   network_interface_ids = [azurerm_network_interface.ftdv-interface-management.id,
                                                         azurerm_network_interface.ftdv-interface-diagnostic.id,
-                                                        azurerm_network_interface.ftdv-interface-outside.id,
-                                                        azurerm_network_interface.ftdv-interface-inside.id]
+                                                        azurerm_network_interface.ftdv-interface-data.id]
   vm_size               = var.VMSize
 
 
